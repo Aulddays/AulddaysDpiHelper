@@ -48,14 +48,25 @@ BOOL CDemo_SDIView::PreCreateWindow(CREATESTRUCT& cs)
 
 // CDemo_SDIView drawing
 
-void CDemo_SDIView::OnDraw(CDC* /*pDC*/)
+void CDemo_SDIView::OnDraw(CDC* pDC)
 {
 	CDemo_SDIDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
 		return;
 
-	// TODO: add draw code for native data here
+	// Draw some text with a large font
+	LOGFONT lf = { 0 };
+	GetGlobalData()->fontRegular.GetLogFont(&lf);
+	lf.lfHeight *= 2;	// twice the size of fontRegular
+	CFont font;
+	font.CreateFontIndirect(&lf);
+	CFont *oriFont = pDC->SelectObject(&font);
+	RECT rect;
+	GetClientRect(&rect);
+	pDC->DrawText(_T("dev.aulddays.com"), &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+	pDC->SelectObject(oriFont);
+	font.DeleteObject();
 }
 
 void CDemo_SDIView::OnRButtonUp(UINT /* nFlags */, CPoint point)

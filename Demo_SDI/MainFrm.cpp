@@ -25,6 +25,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_REGISTERED_MESSAGE(AFX_WM_CREATETOOLBAR, &CMainFrame::OnToolbarCreateNew)
 	ON_COMMAND_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnApplicationLook)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnUpdateApplicationLook)
+	/// AulddaysDpiHelper BEGIN
+	ON_WM_SETTINGCHANGE()
+	ON_MESSAGE(WM_DPICHANGED, &CMainFrame::OnDpichanged)
+	/// AulddaysDpiHelper END
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -121,6 +125,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 			CMFCToolBar::SetUserImages(&m_UserImages);
 		}
 	}
+
+	/// AulddaysDpiHelper BEGIN
+	updateDpi();
+	/// AulddaysDpiHelper END
 
 	return 0;
 }
@@ -283,3 +291,57 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 	return TRUE;
 }
 
+/// AulddaysDpiHelper BEGIN
+void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
+{
+	CFrameWndEx::OnSettingChange(uFlags, lpszSection);
+
+	// TODO: Add your message handler code here
+	updateDpi();
+}
+
+afx_msg LRESULT CMainFrame::OnDpichanged(WPARAM wParam, LPARAM lParam)
+{
+	updateDpi(true);
+	return 0;
+}
+
+void CMainFrame::updateDpi(bool resizeWindow)
+{
+	// update AFX_GLOBAL_DATA
+	AulddaysDpiHelper::updateGlobal(GetSafeHwnd());
+
+	// Resize of the main window
+	if (resizeWindow)
+	{
+		WINDOWPLACEMENT wp;
+		wp.length = sizeof(wp);
+		GetWindowPlacement(&wp);
+		double newdpi = AulddaysDpiHelper::getDpi(GetSafeHwnd());
+		if (wp.showCmd == SW_SHOWNORMAL && m_curdpi != 0 && newdpi != 0 &&
+			m_curdpi != newdpi)
+		{
+			int diff = (int)((wp.rcNormalPosition.right - wp.rcNormalPosition.left)
+				* (newdpi - m_curdpi) / m_curdpi / 2);
+			if (diff >= 0 || wp.rcNormalPosition.right - wp.rcNormalPosition.left + diff > 2)
+			{
+				wp.rcNormalPosition.left -= diff;
+				wp.rcNormalPosition.right += diff;
+			}
+			diff = (int)((wp.rcNormalPosition.bottom - wp.rcNormalPosition.top) *
+				(newdpi - m_curdpi) / m_curdpi);
+			if (diff >= 0 || wp.rcNormalPosition.bottom - wp.rcNormalPosition.top + diff > 2)
+			{
+				wp.rcNormalPosition.bottom += diff;
+			}
+		}
+		SetWindowPlacement(&wp);
+	}
+	m_curdpi = AulddaysDpiHelper::getDpi(GetSafeHwnd());
+
+	// update the control bars
+	m_wndMenuBar.AdjustLayout();
+	m_wndToolBar.updateDpi();
+	m_wndStatusBar.AdjustLayout();
+}
+/// AulddaysDpiHelper END
