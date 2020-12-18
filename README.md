@@ -1,6 +1,6 @@
 # AulddaysDpiHelper
-AulddaysDpiHelper
-A utility to help applications to better support Per-Monitor DPI Awareness (V2).
+`AulddaysDpiHelper` is
+a utility to help applications to better support Per-Monitor DPI Awareness (V2).
 That is, to scale screen elements correctly on systems with multiple monitors of
 different DPI settings.
 
