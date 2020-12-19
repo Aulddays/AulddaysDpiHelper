@@ -44,6 +44,7 @@ bool AulddaysDpiHelper::_inited = false;
 UINT(WINAPI *AulddaysDpiHelper::AulddaysGetDpiForWindow)(HWND hwnd) = NULL;
 BOOL(WINAPI *AulddaysDpiHelper::AulddaysSystemParametersInfoForDpi)(
 	UINT uiAction, UINT uiParam, PVOID pvParam, UINT fWinIni, UINT dpi);
+int (WINAPI *AulddaysDpiHelper::AulddaysGetSystemMetricsForDpi)(int nIndex, UINT dpi);
 
 // A helper to modify protected members of AFX_GLOBAL_DATA
 struct AFX_GLOBAL_DATA_HELPER : public AFX_GLOBAL_DATA
@@ -60,7 +61,9 @@ void AulddaysDpiHelper::init()
 	AulddaysGetDpiForWindow = (decltype(AulddaysGetDpiForWindow))GetProcAddress(user32, "GetDpiForWindow");
 	AulddaysSystemParametersInfoForDpi = (decltype(AulddaysSystemParametersInfoForDpi))
 		GetProcAddress(user32, "SystemParametersInfoForDpi");
-	if (!AulddaysGetDpiForWindow)
+	AulddaysGetSystemMetricsForDpi = (decltype(AulddaysGetSystemMetricsForDpi))
+		GetProcAddress(user32, "GetSystemMetricsForDpi");
+	if (!AulddaysGetDpiForWindow || !AulddaysGetSystemMetricsForDpi || !AulddaysSystemParametersInfoForDpi)
 		AulddaysGetDpiForWindow = [](HWND hwnd) -> UINT { return 0; };
 	_inited = true;
 }
@@ -87,6 +90,8 @@ void AulddaysDpiHelper::initdata(UINT dpi)
 		data.fontUnderline.CreateFontIndirect(&lf);
 		GetGlobalData()->fontBold.GetLogFont(&lf);
 		data.fontBold.CreateFontIndirect(&lf);
+		GetGlobalData()->fontMarlett.GetLogFont(&lf);
+		data.fontMarlett.CreateFontIndirect(&lf);
 		GetGlobalData()->fontVert.GetLogFont(&lf);
 		data.fontVert.CreateFontIndirect(&lf);
 		GetGlobalData()->fontVertCaption.GetLogFont(&lf);
@@ -133,15 +138,10 @@ void AulddaysDpiHelper::initdata(UINT dpi)
 	// Bold font:
 	lf.lfWeight = FW_BOLD;
 	data.fontBold.CreateFontIndirect(&lf);
-	//// Create Marlett font:
-	//BYTE bCharSet = lf.lfCharSet;
-	//lf.lfWeight = info.lfMenuFont.lfWeight;
-	//lf.lfCharSet = SYMBOL_CHARSET;
-	//lf.lfWeight = 0;
-	//lf.lfHeight = ::GetSystemMetrics(SM_CYMENUCHECK) - 1;
-	//lstrcpy(lf.lfFaceName, AFX_FONT_NAME_MARLETT);
-	//fontMarlett.CreateFontIndirect(&lf);
-	//lf.lfCharSet = bCharSet; // Restore charset
+	// Marlett font
+	GetGlobalData()->fontMarlett.GetLogFont(&lf);
+	lf.lfHeight = AulddaysGetSystemMetricsForDpi(SM_CYMENUCHECK, dpi) - 1;
+	data.fontMarlett.CreateFontIndirect(&lf);
 
 	// Vertical font:
 	GetGlobalData()->fontVert.GetLogFont(&lf);
@@ -161,6 +161,20 @@ void AulddaysDpiHelper::AulddaysDpiData::release()
 {
 	if (fontRegular.GetSafeHandle())
 		::DeleteObject(fontRegular.Detach());
+	if (fontSmall.GetSafeHandle())
+		::DeleteObject(fontSmall.Detach());
+	if (fontTooltip.GetSafeHandle())
+		::DeleteObject(fontTooltip.Detach());
+	if (fontUnderline.GetSafeHandle())
+		::DeleteObject(fontUnderline.Detach());
+	if (fontBold.GetSafeHandle())
+		::DeleteObject(fontBold.Detach());
+	if (fontMarlett.GetSafeHandle())
+		::DeleteObject(fontMarlett.Detach());
+	if (fontVert.GetSafeHandle())
+		::DeleteObject(fontVert.Detach());
+	if (fontVertCaption.GetSafeHandle())
+		::DeleteObject(fontVertCaption.Detach());
 }
 
 void AulddaysDpiHelper::updateGlobal(UINT dpi)
@@ -202,6 +216,11 @@ void AulddaysDpiHelper::updateGlobal(UINT dpi)
 	GetGlobalData()->fontTooltip.CreateFontIndirect(&lf);
 	lf.lfItalic = info.lfMenuFont.lfItalic;
 	lf.lfWeight = info.lfMenuFont.lfWeight;
+	// Marlett font:
+	GetGlobalData()->fontMarlett.GetLogFont(&lf);
+	lf.lfHeight = AulddaysGetSystemMetricsForDpi(SM_CYMENUCHECK, dpi) - 1;
+	GetGlobalData()->fontMarlett.DeleteObject();
+	GetGlobalData()->fontMarlett.CreateFontIndirect(&lf);
 	// vertical font
 	GetGlobalData()->fontVert.GetLogFont(&lf);
 	lf.lfHeight = info.lfMenuFont.lfHeight;

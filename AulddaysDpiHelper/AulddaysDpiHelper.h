@@ -97,6 +97,7 @@ public:
 		CFont fontTooltip;
 		CFont fontUnderline;
 		CFont fontBold;
+		CFont fontMarlett;
 		CFont fontVert;
 		CFont fontVertCaption;
 		~AulddaysDpiData() { release(); };
@@ -130,6 +131,7 @@ protected:
 	static UINT (WINAPI *AulddaysGetDpiForWindow)(HWND hwnd);
 	static BOOL (WINAPI *AulddaysSystemParametersInfoForDpi)(
 		UINT uiAction, UINT uiParam, PVOID pvParam, UINT fWinIni, UINT dpi);
+	static int (WINAPI *AulddaysGetSystemMetricsForDpi)(int nIndex, UINT dpi);
 
 	// AulddaysDpiData internals
 	static std::list<AulddaysDpiData> _dpidata;
