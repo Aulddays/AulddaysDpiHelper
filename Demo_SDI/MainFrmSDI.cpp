@@ -5,7 +5,7 @@
 #include "stdafx.h"
 #include "Demo_SDI.h"
 
-#include "MainFrm.h"
+#include "MainFrmSDI.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

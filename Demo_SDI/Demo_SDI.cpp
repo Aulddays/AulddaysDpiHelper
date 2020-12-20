@@ -6,7 +6,7 @@
 #include "afxwinappex.h"
 #include "afxdialogex.h"
 #include "Demo_SDI.h"
-#include "MainFrm.h"
+#include "MainFrmSDI.h"
 
 #include "Demo_SDIDoc.h"
 #include "Demo_SDIView.h"
