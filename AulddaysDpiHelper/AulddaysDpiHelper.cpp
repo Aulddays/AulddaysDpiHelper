@@ -72,8 +72,9 @@ void AulddaysDpiHelper::initdata(UINT dpi)
 {
 	if (_dpimap.count(dpi) && _dpimap[dpi])
 		return;
-	_dpimap[dpi] = new AulddaysDpiData;
-	AulddaysDpiData &data = *_dpimap[dpi];
+	_dpidata.emplace_back();
+	AulddaysDpiData &data = _dpidata.back();
+	_dpimap[dpi] = &data;
 
 	LOGFONT lf = { 0 };
 

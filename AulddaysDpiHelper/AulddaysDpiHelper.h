@@ -48,7 +48,7 @@ public:
 	virtual ~AulddaysDpiHelper() {};
 
 	/////////////////
-	// EASY interfaces
+	// EASY APIs
 	// Update the global settings and automatically affect most MFC elements
 	/////////////////
 
@@ -83,7 +83,7 @@ public:
 
 
 	/////////////////
-	// ADVANCED interfaces
+	// ADVANCED APIs
 	// Manage metrics to use on different dpi settings, supporting multiple windows of a single process
 	// on monitors with different dpi settings at the same time to scale correctly
 	/////////////////
@@ -135,6 +135,8 @@ protected:
 
 	// AulddaysDpiData internals
 	static std::list<AulddaysDpiData> _dpidata;
+	// _dpimap maps dpi value to pointers to AulddaysDpiData, which are stored in _dpidata.
+	// _dpimap does not store concrete obj but pointers because gdi objs in AulddaysDpiData may not be copyable.
 	static std::map<UINT, AulddaysDpiData *> _dpimap;
 	static void initdata(UINT dpi);
 };
@@ -142,8 +144,8 @@ protected:
 
 /////////////////
 // AulddaysToolBar
-// To be used with EASY interfaces
-// The original CMFCToolBar does not scale well. Replace them with AulddaysToolBar 
+// To be used with EASY APIs
+// The original CMFCToolBar does not scale well. Replace it with AulddaysToolBar 
 /////////////////
 
 class AulddaysToolBar : public CMFCToolBar
