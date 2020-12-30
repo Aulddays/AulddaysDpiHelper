@@ -1,4 +1,6 @@
 # AulddaysDpiHelper
+MFC Per-monitor DPI awareness V2 for multi monitors
+
 Windows started limited support of different DPI settings on multi-monitors ever since Windows 8. And the functionality was then enhanced on Windows 10 1703.
 Many applications support high DPI scale now, however, they are not automatically multi-monitor dpi aware. In fact, most applications (even those already with high DPI support) would only look well on the "main" display. If moved to a secondary display, the text and images would propably look quite blurry.
 
